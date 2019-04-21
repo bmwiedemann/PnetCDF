@@ -1,0 +1,41 @@
+language: c
+
+before_install:
+  - test -n $CC && unset CC
+  # apt-package-whitelist can be found in
+  # https://github.com/travis-ci/apt-package-whitelist/blob/master/ubuntu-precise
+  - sudo add-apt-repository ppa:dns/gnu -y
+  # - sudo apt-get update -qq
+  - sudo apt-get install -y gfortran
+  - sudo apt-get install -y mpich2
+  - sudo apt-get install -y netcdf-bin
+  - which ncdump
+  - nc-config --all
+  - sudo apt-get install --only-upgrade autoconf
+  - autoconf --version
+  - sudo apt-get install --only-upgrade automake
+  - automake --version
+  - sudo apt-get install --only-upgrade libtool
+  - sudo apt-get install -y libtool-bin
+  - libtool --version
+  - sudo apt-get install -y mpich
+  - sudo apt-get install -y libmpich-dev
+  - mpichversion
+  - autoreconf -i
+  - ./configure --enable-netcdf4
+  - make -s tests
+
+after_success:
+  - make -s distclean
+
+after_failure:
+  - cat ./config.log
+  - make -s distclean
+  # - cat /home/travis/build/wkliao/pnetcdf/cov-int/build-log.txt
+
+notifications:
+  email: false
+
+branches:
+    only:
+        - test_travis_ci
