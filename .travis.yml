@@ -13,6 +13,8 @@ env:
 
 addons:
   coverity_scan:
+    - # send to coverity scan only when os is linux
+    if: os = linux
     project:
       name: "Parallel-NetCDF/PnetCDF"
       description: "PnetCDF nightly build submitted via Travis CI / Coverity Scan"
@@ -32,7 +34,6 @@ addons:
     update: true
     # apt-package-whitelist can be found in
     # https://github.com/travis-ci/apt-package-whitelist/blob/master/ubuntu-precise
-
 
 before_install:
   - echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
@@ -62,5 +63,5 @@ notifications:
 # to build all branches
 branches:
   only:
-  - master
-  - /.*/
+        - test_travis_ci
+
