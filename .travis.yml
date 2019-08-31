@@ -2,7 +2,7 @@ language: c
 
 os:
   - osx
-  # - linux
+  - linux
 
 addons:
   apt:
@@ -30,13 +30,13 @@ before_install:
   - test -n $CC && unset CC
   - if [ $TRAVIS_OS_NAME == osx ]; then brew update; fi
   - if [ $TRAVIS_OS_NAME == osx ]; then brew install mpich; fi
-
-script:
   - autoconf --version
   - automake --version
   - if [ $TRAVIS_OS_NAME = linux ]; then libtool --version ; else libtool -V ; fi
-  - if [ $TRAVIS_OS_NAME = linux ]; then mpichversion ; fi
+  - mpichversion
   - autoreconf -i
+
+script:
   - ./configure --enable-profiling --enable-subfiling --enable-thread-safe --enable-burst_buffering --enable-shared --enable-debug pnc_ac_debug=yes 
   - make distcheck -s V=1 LIBTOOLFLAGS=--silent DISTCHECK_CONFIGURE_FLAGS="--silent --enable-profiling --enable-subfiling --enable-thread-safe --enable-burst_buffering --enable-shared --enable-debug pnc_ac_debug=yes"
 
