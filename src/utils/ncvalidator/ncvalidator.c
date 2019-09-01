@@ -9,11 +9,11 @@
 #include <sys/types.h>  /* open() */
 #include <sys/stat.h>   /* open() */
 #include <fcntl.h>      /* open() */
-#include <unistd.h>     /* read() getopt() */
+#include <unistd.h>     /* read(), getopt() */
 #include <string.h>     /* strcpy(), strncpy() */
 #include <inttypes.h>   /* check for Endianness, uint32_t*/
 #include <assert.h>
-#include <errno.h>
+#include <errno.h>      /* errno */
 
 #define X_ALIGN         4
 #define X_INT_MAX       2147483647
@@ -45,7 +45,7 @@ static const char nada[4] = {0, 0, 0, 0};
 /* useful for aligning memory */
 #define _RNDUP(x, unit) ((((x) + (unit) - 1) / (unit)) * (unit))
 
-#define ERR_ADDR (((size_t) gbp->pos - (size_t) gbp->base) + gbp->offset - gbp->size)
+#define ERR_ADDR (((size_t)gbp->pos - (size_t)gbp->base) + (size_t)(gbp->offset - gbp->size))
 
 #define IS_RECVAR(vp) ((vp)->shape != NULL ? (*(vp)->shape == NC_UNLIMITED) : 0 )
 
@@ -212,7 +212,7 @@ static const char ncmagic[] = {'C', 'D', 'F', 0x01};
 
 static int check_little_endian(void)
 {
-    // return 0 for big endian, 1 for little endian.
+    /* return 0 for big endian, 1 for little endian */
     volatile uint32_t i=0x01234567;
     return (*((uint8_t*)(&i))) == 0x67;
 }
@@ -512,7 +512,7 @@ hdr_len_NC_var(const NC_var *varp,
      */
     sz = hdr_len_NC_name(varp->name_len, sizeof_t);     /* name */
     sz += sizeof_t;                                     /* nelems */
-    sz += sizeof_t * varp->ndims;                       /* [dimid ...] */
+    sz += (long long)sizeof_t * varp->ndims;            /* [dimid ...] */
     sz += hdr_len_NC_attrarray(&varp->attrs, sizeof_t); /* vatt_list */
     sz += 4;                                            /* nc_type */
     sz += sizeof_t;                                     /* vsize */
@@ -1031,6 +1031,8 @@ hdr_get_name(int          fd,
         if (err != NC_NOERR) {
             if (verbose) printf("Error @ [0x%8.8zx]:\n", err_addr);
             if (verbose) printf("\t%s - fetching name string padding\n", loc);
+            free(*namep);
+            *namep = NULL;
             return err;
         }
         memset(pad, 0, X_ALIGN-1);
@@ -1038,8 +1040,6 @@ hdr_get_name(int          fd,
             /* This is considered not a fatal error, we continue to validate */
             if (verbose) printf("Error @ [0x%8.8zx]:\n", err_addr);
             if (verbose) printf("\t%s \"%s\": name padding is non-null byte\n", loc, *namep);
-            // free(*namep);
-            // *namep = NULL;
             DEBUG_ASSIGN_ERROR(err, NC_ENULLPAD)
             if (repair) {
                 val_repair(fd, err_addr, (size_t)padding, (void*)nada);
@@ -2235,6 +2235,7 @@ fn_exit:
 
 /* End Of get NC */
 
+#ifndef BUILD_CDFDIFF
 static void
 usage(char *argv0)
 {
@@ -2386,3 +2387,4 @@ prog_exit:
 
     exit((status == NC_NOERR) ? EXIT_SUCCESS : EXIT_FAILURE);
 }
+#endif

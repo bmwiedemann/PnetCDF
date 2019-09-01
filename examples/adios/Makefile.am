@@ -1,8 +1,6 @@
 #
-# Copyright (C) 2012, Northwestern University and Argonne National Laboratory
+# Copyright (C) 2019, Northwestern University and Argonne National Laboratory
 # See COPYRIGHT notice in top-level directory.
-#
-# $Id$
 #
 # @configure_input@
 
@@ -10,11 +8,11 @@ SUFFIXES = .o .c
 AM_DEFAULT_SOURCE_EXT = .c
 AM_CPPFLAGS = -I$(top_builddir)/src/include
 LDADD = $(top_builddir)/src/libs/libpnetcdf.la
+LDADD += @NETCDF4_LDFLAGS@ @ADIOS_LDFLAGS@ @NETCDF4_LIBS@ @ADIOS_LIBS@
 
 check_PROGRAMS = read_metadata \
-				 read_var \
-				 read_var_nb
-                 
+                 read_var \
+                 read_var_nb
 
 # parallel runs only
 # TESTS = $(check_PROGRAMS)
@@ -23,6 +21,7 @@ check_PROGRAMS = read_metadata \
 
 TESTS_ENVIRONMENT  = export SED="$(SED)";
 TESTS_ENVIRONMENT += export srcdir="$(srcdir)";
+TESTS_ENVIRONMENT += export top_srcdir="$(top_srcdir)";
 TESTS_ENVIRONMENT += export TESTOUTDIR="$(TESTOUTDIR)";
 TESTS_ENVIRONMENT += export TESTSEQRUN="$(TESTSEQRUN)";
 TESTS_ENVIRONMENT += export TESTMPIRUN="$(TESTMPIRUN)";

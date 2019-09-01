@@ -1,8 +1,6 @@
 /*
- *  Copyright (C) 2018, Northwestern University and Argonne National Laboratory
+ *  Copyright (C) 2019, Northwestern University and Argonne National Laboratory
  *  See COPYRIGHT notice in top-level directory.
- *
- *  $Id$
  */
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
@@ -57,8 +55,7 @@ int main(int argc, char** argv) {
         free(cmd_str);
     }
 
-    err = ncmpi_open(MPI_COMM_WORLD, filename, NC_NOWRITE, MPI_INFO_NULL, 
-                        &ncid);
+    err = ncmpi_open(MPI_COMM_WORLD, filename, NC_NOWRITE, MPI_INFO_NULL, &ncid);
     CHECK_ERR
 
     ncmpi_close(ncid);
