@@ -134,8 +134,10 @@ nc4io_open(MPI_Comm     comm,
            void       **ncpp)
 {
     char *filename;
-    int err, ncidtmp;
-    int flag;
+    int err;
+    int i;
+    int flag, ncidtmp;
+    int nvar, ndim;
     char value[MPI_MAX_INFO_VAL];
     NC_nc4 *nc4p;
 
@@ -171,13 +173,24 @@ nc4io_open(MPI_Comm     comm,
     nc4p->ncid = ncidtmp;
     nc4p->putsize = 0;
     nc4p->getsize = 0;
-    nc4p->maxndim = 0;
     if (info == MPI_INFO_NULL)
         nc4p->mpiinfo = MPI_INFO_NULL;
     else
         MPI_Info_dup(info, &nc4p->mpiinfo);
 
     if (!fIsSet(omode, NC_WRITE)) fSet(nc4p->flag, NC_MODE_RDONLY);
+
+    // Get maxndim
+    err = nc_inq_nvars(nc4p->ncid, &nvar);
+    if (err != NC_NOERR) return err;
+    nc4p->maxndim = 0;
+    for(i = 0; i < nvar; i++){
+        err = nc_inq_varndims(nc4p->ncid, i, &ndim);
+        if (err != NC_NOERR) return err;
+        if (nc4p->maxndim < ndim){
+            nc4p->maxndim = ndim;
+        }
+    }
 
     /* Compression hints */
     nc4p->deflatlvl = 0;  

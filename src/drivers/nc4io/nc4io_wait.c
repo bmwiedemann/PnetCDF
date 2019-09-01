@@ -175,7 +175,7 @@ int nc4io_wait_get_reqs(NC_nc4 *nc4p, int nreq, int *reqids, int *stats){
     offs = (int*)NCI_Malloc(sizeof(int) * (nvar + 1));
     memset(nums, 0, sizeof(int) * nvar);
     for(i = 0; i < nreq; i++){
-        req = nc4p->putlist.reqs + reqids[i];
+        req = nc4p->getlist.reqs + reqids[i];
         nums[req->varid] += req->nreq;
     }
 
@@ -197,7 +197,7 @@ int nc4io_wait_get_reqs(NC_nc4 *nc4p, int nreq, int *reqids, int *stats){
     // Convert all call to vars call since netcdf does not support different type of API call
     memset(nums, 0, sizeof(int) * nvar);
     for(i = 0; i < nreq; i++){
-        req = nc4p->putlist.reqs + reqids[i];
+        req = nc4p->getlist.reqs + reqids[i];
         memcpy(starts + offs[req->varid] + nums[req->varid], req->starts, sizeof(MPI_Offset*) * req->nreq);
         memcpy(counts + offs[req->varid] + nums[req->varid], req->counts, sizeof(MPI_Offset*) * req->nreq);
         memcpy(bufs + offs[req->varid] + nums[req->varid], req->bufs, sizeof(char*) * req->nreq);
@@ -225,7 +225,7 @@ int nc4io_wait_get_reqs(NC_nc4 *nc4p, int nreq, int *reqids, int *stats){
     for(i = 0; i < nvar; i++){
         for(j = 0; j < nums_all[i]; j++){
             if (j < nums[i]){
-                err = nc4io_put_var(nc4p, i, starts[offs[i] + j], counts[offs[i] + j], strides[offs[i] + j], NULL, bufs[offs[i] + j], -1, btypes[offs[i] + j], NC_REQ_COLL);
+                err = nc4io_get_var(nc4p, i, starts[offs[i] + j], counts[offs[i] + j], strides[offs[i] + j], NULL, bufs[offs[i] + j], -1, btypes[offs[i] + j], NC_REQ_COLL);
             }
             else{
                 nc4io_get_var(nc4p, i, start_dummy, count_dummy, stride_dummy, NULL, &err, -1, MPI_INT, NC_REQ_COLL);

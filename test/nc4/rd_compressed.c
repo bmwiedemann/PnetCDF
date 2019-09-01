@@ -61,6 +61,50 @@ static int create_nc4(char *filename)
     return nerrs;
 }
 
+static int create_ncmpi(char *filename)
+{
+    int i, err, nerrs=0;
+    int ncid, varid, dimids[3], *buf;
+    int shuffle, deflate, deflate_level;
+    MPI_Info info;
+
+    /* Deflat hint */
+    MPI_Info_create(&info);
+    MPI_Info_set(info, "nc_nc4_deflat", "1");
+
+    /* create a new file, if already exists, clobber it */
+    err = ncmpi_create(MPI_COMM_WORLD, filename, NC_NETCDF4|NC_CLOBBER, info, &ncid); CHECK_ERR
+
+    MPI_Info_free(&info);
+
+    /* define dimensions */
+    err = ncmpi_def_dim(ncid, "z", NZ, &dimids[0]); CHECK_ERR
+    err = ncmpi_def_dim(ncid, "y", NY, &dimids[1]); CHECK_ERR
+    err = ncmpi_def_dim(ncid, "x", NX, &dimids[2]); CHECK_ERR
+
+    /* define variable */
+    err = ncmpi_def_var(ncid, "var", NC_INT, 3, dimids, &varid); CHECK_ERR
+
+    /* exit define mode */
+    err = ncmpi_enddef(ncid); CHECK_ERR
+
+    /* initialize buffer contents */
+    buf = (int*) malloc(NZ*NY*NZ * sizeof(int));
+    for (i=0; i<NZ*NY*NZ; i++) buf[i] = i;
+
+    /* write the entire variable */
+    err = ncmpi_put_var_int_all(ncid, varid, buf); CHECK_ERR
+
+    free(buf);
+
+    /* flush write data to file system */
+    err = ncmpi_sync(ncid); CHECK_ERR
+
+    err = ncmpi_close(ncid); CHECK_ERR
+
+    return nerrs;
+}
+
 int main(int argc, char **argv) {
     char filename[512];
     int i, err, nerrs=0, rank, np;
@@ -88,7 +132,7 @@ int main(int argc, char **argv) {
 
     /* rank 0 creates a NETCDF4 file */
     if (rank == 0) {
-        err = create_nc4(filename);
+        err = create_ncmpi(filename);
         if (err) goto fn_exit;
     }
     MPI_Barrier(MPI_COMM_WORLD);

@@ -76,9 +76,22 @@ nc4io_def_var(void       *ncdp,
     if (err != NC_NOERR) DEBUG_RETURN_ERROR(err);
 
     /* Set comrpession */
-    if (nc4p->deflatlvl > 0){
+    if ((nc4p->deflatlvl) > 0 && (ndims > 0)){
+        int i;
+        size_t *csize;
+        
+        csize = (size_t*)NCI_Malloc(sizeof(size_t) * ndims);
+        for(i = 0; i < ndims; i++){
+            err = nc_inq_dim(nc4p->ncid, dimids[i], NULL, csize + i);
+            if (err != NC_NOERR) DEBUG_RETURN_ERROR(err);
+        }
+
+        err = nc_def_var_chunking(nc4p->ncid, *varidp, NC_CHUNKED, csize);
+        if (err != NC_NOERR) DEBUG_RETURN_ERROR(err);
         err = nc_def_var_deflate(nc4p->ncid, *varidp, NC_SHUFFLE, 1, nc4p->deflatlvl);
         if (err != NC_NOERR) DEBUG_RETURN_ERROR(err);
+
+        NCI_Free(csize);
     }
 
     /* Default mode in NetCDF is indep, set to coll if in coll mode */
