@@ -16,8 +16,8 @@ addons:
       name: "Parallel-NetCDF/PnetCDF"
       description: "PnetCDF nightly build submitted via Travis CI / Coverity Scan"
     notification_email: wkliao@eecs.northwestern.edu
-    # build_command_prepend: ./configure --enable-profiling --enable-subfiling --enable-thread-safe --enable-burst_buffering --enable-shared --enable-debug pnc_ac_debug=yes
-    # build_command: make tests -j8
+    build_command_prepend: if [ $TRAVIS_OS_NAME == linux ]; then ./configure --enable-profiling --enable-subfiling --enable-thread-safe --enable-burst_buffering --enable-shared --enable-debug pnc_ac_debug=yes ; fi
+    build_command: if [ $TRAVIS_OS_NAME == linux ]; then make tests -j8 ; fi
     branch_pattern: test_travis_ci
   apt:
     packages:
@@ -51,14 +51,7 @@ before_install:
   - mpichversion
   - autoreconf -i
 
-before_script:
-  - ./configure --enable-profiling --enable-subfiling --enable-thread-safe --enable-burst_buffering --enable-shared --enable-debug pnc_ac_debug=yes
-  # implement Coverity Scan with before_script instead of addons.coverity_scan
-  # to work around too-early quota check by the coverity_scan addon
-  - if [ $TRAVIS_OS_NAME = linux ] ; then curl -s 'https://scan.coverity.com/scripts/travisci_build_coverity_scan.sh' | bash || true ; fi
-
 script:
-  - make tests -j8
   - make distcheck -s -j8 V=1 LIBTOOLFLAGS=--silent DISTCHECK_CONFIGURE_FLAGS="--silent --enable-profiling --enable-subfiling --enable-thread-safe --enable-burst_buffering --enable-shared --enable-debug pnc_ac_debug=yes"
 
 after_success:
