@@ -52,12 +52,14 @@ before_install:
   - if [ $TRAVIS_OS_NAME = linux ]; then libtool --version ; else libtool -V ; fi
   - mpichversion
   - autoreconf -i
-  - if [ $TRAVIS_OS_NAME == osx ]; then COVERITY_SCAN_BUILD_COMMAND="" ; fi
+  - if [ $TRAVIS_OS_NAME == osx ]; then export COVERITY_SCAN_BUILD_COMMAND="" ; fi
   - ./configure --enable-profiling --enable-subfiling --enable-thread-safe --enable-burst_buffering --enable-shared --enable-debug pnc_ac_debug=yes
 
-script:
-  - if [[ ${TRAVIS_OS_NAME} = linux -a ${COVERITY_SCAN_BRANCH} != 1 ]] ; then make distcheck -s V=1 LIBTOOLFLAGS=--silent DISTCHECK_CONFIGURE_FLAGS="--silent --enable-profiling --enable-subfiling --enable-thread-safe --enable-burst_buffering --enable-shared --enable-debug pnc_ac_debug=yes" ; fi
-  - if [[ ${TRAVIS_OS_NAME} = osx -a ${COVERITY_SCAN_BRANCH} != 1 ]] ; then make -s V=1 LIBTOOLFLAGS=--silent check ; fi
+script: if [ ${COVERITY_SCAN_BRANCH} != 1 ]; then make ; fi
+
+# script:
+#   - if [[ ${TRAVIS_OS_NAME} = linux -a ${COVERITY_SCAN_BRANCH} != 1 ]] ; then make distcheck -s V=1 LIBTOOLFLAGS=--silent DISTCHECK_CONFIGURE_FLAGS="--silent --enable-profiling --enable-subfiling --enable-thread-safe --enable-burst_buffering --enable-shared --enable-debug pnc_ac_debug=yes" ; fi
+#   - if [[ ${TRAVIS_OS_NAME} = osx -a ${COVERITY_SCAN_BRANCH} != 1 ]] ; then make -s V=1 LIBTOOLFLAGS=--silent check ; fi
 
 after_success:
   - make -s distclean
