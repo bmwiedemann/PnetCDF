@@ -13,15 +13,14 @@ env:
 
 addons:
   coverity_scan:
-    - # send to coverity scan only when os is linux
-    if: os IS linux
+    if: os = linux
     project:
       name: "Parallel-NetCDF/PnetCDF"
       description: "PnetCDF nightly build submitted via Travis CI / Coverity Scan"
     notification_email: wkliao@eecs.northwestern.edu
     build_command_prepend: ./configure --enable-profiling --enable-subfiling --enable-thread-safe --enable-burst_buffering --enable-shared --enable-debug pnc_ac_debug=yes
     build_command: make tests
-    branch_pattern: master
+    branch_pattern: test_travis_ci
   apt:
     packages:
       - gfortran
