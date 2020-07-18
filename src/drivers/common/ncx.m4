@@ -1013,6 +1013,7 @@ typedef long ix_int;
 static void
 get_ix_int(const void *xp, ix_int *ip)
 {
+#if 0
 	const uchar *cp = (const uchar *) xp;
 
 	*ip = (ix_int)(*cp++) << 24;
@@ -1026,17 +1027,28 @@ get_ix_int(const void *xp, ix_int *ip)
 	*ip |= (ix_int)(*cp++) << 16;
 	*ip |= (ix_int)(*cp++) << 8;
 	*ip |= (ix_int)*cp;
+#else
+    ix_int tmp;
+    memcpy(&tmp, xp, 4);
+    *ip = SWAP4(tmp);
+#endif
 }
 
 static void
 put_ix_int(void *xp, const ix_int *ip)
 {
+#if 0
 	uchar *cp = (uchar *) xp;
 
 	*cp++ = (uchar) (*ip               >> 24);
 	*cp++ = (uchar)((*ip & 0x00ff0000) >> 16);
 	*cp++ = (uchar)((*ip & 0x0000ff00) >>  8);
 	*cp   = (uchar) (*ip & 0x000000ff);
+#else
+    ix_int xtmp, itmp = *ip;
+    xtmp = SWAP4(itmp);
+    memcpy(xp, &xtmp, 4);
+#endif
 }
 
 #if X_SIZEOF_INT != SIZEOF_INT
@@ -1119,23 +1131,35 @@ typedef ulong ix_uint;
 static void
 get_ix_uint(const void *xp, ix_uint *ip)
 {
+#if 0
 	const uchar *cp = (const uchar *) xp;
 
 	*ip  = (ix_uint)(*cp++) << 24;
 	*ip |= (ix_uint)(*cp++) << 16;
 	*ip |= (ix_uint)(*cp++) <<  8;
 	*ip |= (ix_uint)*cp;
+#else
+    ix_uint tmp;
+    memcpy(&tmp, xp, 4);
+    *ip = SWAP4(tmp);
+#endif
 }
 
 static void
 put_ix_uint(void *xp, const ix_uint *ip)
 {
+#if 0
 	uchar *cp = (uchar *) xp;
 
 	*cp++ = (uchar) (*ip               >> 24);
 	*cp++ = (uchar)((*ip & 0x00ff0000) >> 16);
 	*cp++ = (uchar)((*ip & 0x0000ff00) >>  8);
 	*cp   = (uchar) (*ip & 0x000000ff);
+#else
+    ix_uint xtmp, itmp = *ip;
+    xtmp = SWAP4(itmp);
+    memcpy(xp, &xtmp, 4);
+#endif
 }
 
 #if X_SIZEOF_UINT != SIZEOF_UINT
@@ -2047,6 +2071,7 @@ typedef long ix_int64;
 static void
 get_ix_int64(const void *xp, ix_int64 *ip)
 {
+#if 0
     const uchar *cp = (const uchar *) xp;
 
     *ip  = (ix_int64)(*cp++) << 56;
@@ -2057,11 +2082,17 @@ get_ix_int64(const void *xp, ix_int64 *ip)
     *ip |= (ix_int64)(*cp++) << 16;
     *ip |= (ix_int64)(*cp++) <<  8;
     *ip |= (ix_int64)*cp;
+#else
+    ix_int64 tmp;
+    memcpy(&tmp, xp, 8);
+    *ip = SWAP8(tmp);
+#endif
 }
 
 static void
 put_ix_int64(void *xp, const ix_int64 *ip)
 {
+#if 0
     uchar *cp = (uchar *) xp;
 
     *cp++ = (uchar) (*ip                         >> 56);
@@ -2072,6 +2103,11 @@ put_ix_int64(void *xp, const ix_int64 *ip)
     *cp++ = (uchar)((*ip & 0x0000000000ff0000LL) >> 16);
     *cp++ = (uchar)((*ip & 0x000000000000ff00LL) >>  8);
     *cp   = (uchar) (*ip & 0x00000000000000ffLL);
+#else
+    ix_int64 xtmp, itmp = *ip;
+    xtmp = SWAP8(itmp);
+    memcpy(xp, &xtmp, 8);
+#endif
 }
 
 #if X_SIZEOF_INT64 != SIZEOF_LONGLONG
@@ -2125,6 +2161,7 @@ typedef ulong ix_uint64;
 static void
 get_ix_uint64(const void *xp, ix_uint64 *ip)
 {
+#if 0
     const uchar *cp = (const uchar *) xp;
 
     *ip  = (ix_uint64)(*cp++) << 56;
@@ -2135,11 +2172,17 @@ get_ix_uint64(const void *xp, ix_uint64 *ip)
     *ip |= (ix_uint64)(*cp++) << 16;
     *ip |= (ix_uint64)(*cp++) <<  8;
     *ip |= (ix_uint64)*cp;
+#else
+    ix_uint64 tmp;
+    memcpy(&tmp, xp, 8);
+    *ip = SWAP8(tmp);
+#endif
 }
 
 static void
 put_ix_uint64(void *xp, const ix_uint64 *ip)
 {
+#if 0
     uchar *cp = (uchar *) xp;
 
     *cp++ = (uchar) (*ip                          >> 56);
@@ -2150,6 +2193,11 @@ put_ix_uint64(void *xp, const ix_uint64 *ip)
     *cp++ = (uchar)((*ip & 0x0000000000ff0000ULL) >> 16);
     *cp++ = (uchar)((*ip & 0x000000000000ff00ULL) >>  8);
     *cp   = (uchar) (*ip & 0x00000000000000ffULL);
+#else
+    ix_uint64 xtmp, itmp = *ip;
+    xtmp = SWAP8(itmp);
+    memcpy(xp, &xtmp, 8);
+#endif
 }
 
 #if X_SIZEOF_UINT64 != SIZEOF_ULONGLONG
@@ -2199,21 +2247,27 @@ APIPrefix`x_put_size_t'(void **xpp, const size_t *ulp)
  * APIPrefix`x_put_uint32'()
  */
 {
+#if 0
 	/* similar to put_ix_int() */
 	uchar *cp = (uchar *) *xpp;
-	assert(*ulp <= X_SIZE_MAX);
+	assert(*ulp <= X_SIZE_T_MAX);
 
 	*cp++ = (uchar) (*ulp               >> 24);
 	*cp++ = (uchar)((*ulp & 0x00ff0000) >> 16);
 	*cp++ = (uchar)((*ulp & 0x0000ff00) >>  8);
 	*cp   = (uchar) (*ulp & 0x000000ff);
+#else
+    size_t xtmp, itmp = *ulp;
+    xtmp = SWAP4(itmp);
+    memcpy(*xpp, &xtmp, 4);
+#endif
 
 	*xpp = (void *)((char *)(*xpp) + X_SIZEOF_SIZE_T);
 	return NC_NOERR;
 }
 
 int
-APIPrefix`x_get_size_t'(const void **xpp,  size_t *ulp)
+APIPrefix`x_get_size_t'(const void **xpp, size_t *ulp)
 /* This subroutine is used only in NetCDF, not PnetCDF, and only used for
  * classic CDF-1 and 2 file formats where external int is 32-bit in files.
  * The name of this function is misleading, as size_t is an interanl memory
@@ -2223,6 +2277,7 @@ APIPrefix`x_get_size_t'(const void **xpp,  size_t *ulp)
  * APIPrefix`x_get_uint32'()
  */
 {
+#if 0
     /* similar to get_ix_int */
     const uchar *cp = (const uchar *) *xpp;
 
@@ -2237,6 +2292,11 @@ APIPrefix`x_get_size_t'(const void **xpp,  size_t *ulp)
     u32 |= (uint32_t)*cp;
 
     *ulp = (size_t)u32;
+#else
+    size_t tmp;
+    memcpy(&tmp, *xpp, 4);
+    *ulp = SWAP4(tmp);
+#endif
 
     *xpp = (const void *)((const char *)(*xpp) + X_SIZEOF_SIZE_T);
     return NC_NOERR;
@@ -2260,13 +2320,20 @@ APIPrefix`x_put_off_t'(void **xpp, const off_t *lp, size_t sizeof_off_t)
 	uchar *cp = (uchar *) *xpp;
 
 	if (sizeof_off_t == 4) {
+#if 0
 		*cp++ = (uchar) (*lp               >> 24);
 		*cp++ = (uchar)((*lp & 0x00ff0000) >> 16);
 		*cp++ = (uchar)((*lp & 0x0000ff00) >>  8);
 		*cp   = (uchar) (*lp & 0x000000ff);
+#else
+    int xtmp, itmp = *lp;
+    xtmp = SWAP4(itmp);
+    memcpy(*xpp, &xtmp, 4);
+#endif
 	} else {
+#if 0
 #if SIZEOF_OFF_T == 4
-/* Write a 64-bit offset on a system with only a 32-bit offset */
+/* Write a 64-bit offset to a file on a system whose off_t is 32-bit */
 		*cp++ = (uchar)0;
 		*cp++ = (uchar)0;
 		*cp++ = (uchar)0;
@@ -2286,6 +2353,11 @@ APIPrefix`x_put_off_t'(void **xpp, const off_t *lp, size_t sizeof_off_t)
 		*cp++ = (uchar)((*lp & 0x000000000000ff00LL) >>  8);
 		*cp   = (uchar) (*lp & 0x00000000000000ffLL);
 #endif
+#else
+    off_t xtmp, itmp = *lp;
+    xtmp = SWAP8(itmp);
+    memcpy(*xpp, &xtmp, 8);
+#endif
 	}
 	*xpp = (void *)((char *)(*xpp) + sizeof_off_t);
 	return NC_NOERR;
@@ -2300,13 +2372,20 @@ APIPrefix`x_get_off_t'(const void **xpp, off_t *lp, size_t sizeof_off_t)
 	assert(sizeof_off_t == 4 || sizeof_off_t == 8);
 
  	if (sizeof_off_t == 4) {
+#if 0
 		*lp =  (off_t)(*cp++) << 24;
 		*lp |= (off_t)(*cp++) << 16;
 		*lp |= (off_t)(*cp++ )<<  8;
 		*lp |= (off_t)*cp;
+#else
+    int tmp;
+    memcpy(&tmp, *xpp, 4);
+    *lp = SWAP4(tmp);
+#endif
 	} else {
+#if 0
 #if SIZEOF_OFF_T == 4
-/* Read a 64-bit offset on a system with only a 32-bit offset */
+/* Read a 64-bit offset from a file on a system whose off_t is 32-bit */
 /* If the offset overflows, set an error code and return */
 		*lp =  (off_t)(*cp++) << 24;
 		*lp |= (off_t)(*cp++) << 16;
@@ -2344,6 +2423,11 @@ APIPrefix`x_get_off_t'(const void **xpp, off_t *lp, size_t sizeof_off_t)
 		*lp |= (off_t)(*cp++) <<  8;
 		*lp |= (off_t)*cp;
 #endif
+#else
+    long long tmp;
+    memcpy(&tmp, *xpp, 8);
+    *lp = (off_t) SWAP8(tmp);
+#endif
 	}
 	*xpp = (const void *)((const char *)(*xpp) + sizeof_off_t);
 	return NC_NOERR;
@@ -2358,12 +2442,18 @@ APIPrefix`x_get_uint32'(const void **xpp, uint *ip)
      * some system, such as HPUX */
     (void) memcpy(ip, *xpp, 4);
 #else
+#if 0
     const uchar *cp = (const uchar *) *xpp;
 
     *ip  = (uint)(*cp++) << 24;
     *ip |= (uint)(*cp++) << 16;
     *ip |= (uint)(*cp++) <<  8;
     *ip |= (uint)(*cp);
+#else
+    uint tmp;
+    memcpy(&tmp, *xpp, 4);
+    *ip = SWAP4(tmp);
+#endif
 #endif
     /* advance *xpp 4 bytes */
     *xpp = (void *)((const char *)(*xpp) + 4);
@@ -2397,6 +2487,7 @@ APIPrefix`x_get_uint64'(const void **xpp, unsigned long long *ullp)
      * some system, such as HPUX */
     (void) memcpy(ullp, *xpp, 8);
 #else
+#if 0
     const uchar *cp = (const uchar *) *xpp;
 
     /* below is the same as calling swap8b(ullp, *xpp) */
@@ -2408,6 +2499,11 @@ APIPrefix`x_get_uint64'(const void **xpp, unsigned long long *ullp)
     *ullp |= (unsigned long long)(*cp++) << 16;
     *ullp |= (unsigned long long)(*cp++) <<  8;
     *ullp |= (unsigned long long)(*cp);
+#else
+    unsigned long long tmp;
+    memcpy(&tmp, *xpp, 8);
+    *ullp = SWAP8(tmp);
+#endif
 #endif
     /* advance *xpp 8 bytes */
     *xpp = (void *)((const char *)(*xpp) + 8);
