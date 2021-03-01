@@ -103,9 +103,9 @@ AC_SUBST(PNETCDF_VERSION)
 
 dnl Note that command 'date' is not portable across Unix platforms.
 dnl But release date only matters to PnetCDF developers who make the releases.
-PNETCDF_RELEASE_DATE="`date '+%B %-d, %Y'`"
+PNETCDF_RELEASE_DATE="`date -u -r NEWS '+%B %-d, %Y'`"
 AC_SUBST(PNETCDF_RELEASE_DATE)
-PNETCDF_RELEASE_DATE_FULL="`date '+%Y-%m-%d'`"
+PNETCDF_RELEASE_DATE_FULL="`date -u -r NEWS '+%Y-%m-%d'`"
 AC_SUBST(PNETCDF_RELEASE_DATE_FULL)
 
 AC_SUBST(PACKAGE_VERSION)
